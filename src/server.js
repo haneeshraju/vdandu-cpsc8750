@@ -16,8 +16,17 @@ app.set('view engine', 'ejs');
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 let nextVisitorId = 1;
+let vmsg = "";
 let current = new Date();
 app.get('/', (req, res) => {
+  let current = req.cookies.visited;
+  if(current==null){
+  vmsg = "You have never visited before.";
+  }
+  else {
+  current = Math.floor((Date.now() - req.cookies.visited)/1000);
+  vmsg = "It has been ${current} seconds since your last visit";
+  }
   if(req.cookies['visitorId']){
   res.cookie('visitorId', nextVisitorId);}
   else
@@ -25,11 +34,10 @@ app.get('/', (req, res) => {
   res.cookie('visited', Date.now().toString());
   res.render('welcome', {
     name: req.query.name || "World",
-    access_time: req.query.access_time || new Date().toLocaleString(),
-    count: req.query.count || nextVisitorId,
-    last_visit_time: req.query.last_visit_time || Math.round((new Date().getTime() - current.getTime()) / 1000),
+    access_time:new Date().toLocaleString(),
+    count: nextVisitorId,
+    vmsg: vmsg
   });
-  current = new Date();
 console.log(req.cookies);
 });
 
